@@ -8,24 +8,30 @@ module.exports = function (app) {
     .post((req, res) => {
       const { text, locale } = req.body;
 
+      // Check if text or locale is missing
       if (text === undefined || locale === undefined) {
         return res.json({ error: 'Required field(s) missing' });
       }
 
-      if (text === '') {
+      // Check if text is empty
+      if (text.trim() === '') {
         return res.json({ error: 'No text to translate' });
       }
 
-      const translation = translator.translate(text, locale);
-
-      if (translation.error) {
-        return res.json(translation);
+      // Check locale validation
+      if (locale !== 'american-to-british' && locale !== 'british-to-american') {
+        return res.json({ error: 'Invalid value for locale field' });
       }
 
-      if (translation === text) {
+      // Perform the translation
+      const translation = translator.translate(text, locale);
+
+      // Check if the translation is the same as the original text
+      if (text === translation) {
         return res.json({ text, translation: 'Everything looks good to me!' });
       }
 
+      // Return the translation
       res.json({ text, translation });
     });
 };
